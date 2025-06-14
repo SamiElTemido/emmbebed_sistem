@@ -1,2 +1,15 @@
 distancia.txt
-
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+instance/
+.env
+venv/
+.venv/
+ENV/
+.flaskenv
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
