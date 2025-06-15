@@ -13,7 +13,13 @@ def about():
 
 @app.route("/monitor")
 def monitor():
-    return "Monitor page coming soon"
+    # Sample data - Replace with real data
+    measurements = [
+        {"timestamp": "2023-06-15 10:00:00", "distance": "150.2", "status": "Normal"},
+        {"timestamp": "2023-06-15 10:01:00", "distance": "149.8", "status": "Normal"},
+        {"timestamp": "2023-06-15 10:02:00", "distance": "151.0", "status": "Normal"},
+    ]
+    return render_template('monitor.html', measurements=measurements)
 
 if __name__ == "__main__":
     app.run(debug=True)

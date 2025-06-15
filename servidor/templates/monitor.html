@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SensorHub - Monitor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SensorHub Monitor</div>
+    </nav>
+
+    <div class="hero" style="height: auto; padding-top: 2rem;">
+        <!-- Plot Section -->
+        <div style="width: 100%; max-width: 800px; margin-bottom: 2rem;">
+            <div id="sensorPlot"></div>
+        </div>
+
+        <!-- Table Section -->
+        <div style="width: 100%; max-width: 800px; background-color: #18181b; border-radius: 8px; padding: 1rem;">
+            <h2 style="color: var(--primary-color); margin-bottom: 1rem;">Recent Measurements</h2>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #3a3a3d;">
+                            <th style="padding: 1rem; text-align: left;">Timestamp</th>
+                            <th style="padding: 1rem; text-align: left;">Distance (cm)</th>
+                            <th style="padding: 1rem; text-align: left;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for measurement in measurements %}
+                        <tr style="border-bottom: 1px solid #2d2d2d;">
+                            <td style="padding: 1rem;">{{ measurement.timestamp }}</td>
+                            <td style="padding: 1rem;">{{ measurement.distance }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="btn-primary" style="padding: 0.3rem 0.8rem; border-radius: 1rem; font-size: 0.9rem;">
+                                    {{ measurement.status }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data - Replace with real data from Flask
+        const data = [{
+            x: [1, 2, 3, 4, 5],
+            y: [10, 15, 13, 17, 12],
+            type: 'scatter',
+            line: {
+                color: '#9147ff'
+            }
+        }];
+
+        const layout = {
+            paper_bgcolor: '#18181b',
+            plot_bgcolor: '#18181b',
+            font: {
+                color: '#efeff1'
+            },
+            xaxis: {
+                gridcolor: '#2d2d2d'
+            },
+            yaxis: {
+                gridcolor: '#2d2d2d'
+            },
+            margin: {
+                l: 50,
+                r: 50,
+                t: 30,
+                b: 50
+            }
+        };
+
+        Plotly.newPlot('sensorPlot', data, layout);
+    </script>
+</body>
+</html>
