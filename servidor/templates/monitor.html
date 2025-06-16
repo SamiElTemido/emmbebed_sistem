@@ -49,37 +49,53 @@
     </div>
 
     <script>
-        // Sample data - Replace with real data from Flask
-        const data = [{
-            x: [1, 2, 3, 4, 5],
-            y: [10, 15, 13, 17, 12],
-            type: 'scatter',
-            line: {
-                color: '#9147ff'
-            }
-        }];
+        function updateChartAndTable(measurements) {
+            // Update Plotly chart
+            const x = measurements.map(m => m.timestamp);
+            const y = measurements.map(m => m.distance);
+            Plotly.react('sensorPlot', [{
+                x: x,
+                y: y,
+                type: 'scatter',
+                line: { color: '#9147ff' }
+            }], {
+                paper_bgcolor: '#18181b',
+                plot_bgcolor: '#18181b',
+                font: { color: '#efeff1' },
+                xaxis: { gridcolor: '#2d2d2d', title: 'Timestamp' },
+                yaxis: { gridcolor: '#2d2d2d', title: 'Distance (cm)' },
+                margin: { l: 50, r: 50, t: 30, b: 50 }
+            });
 
-        const layout = {
-            paper_bgcolor: '#18181b',
-            plot_bgcolor: '#18181b',
-            font: {
-                color: '#efeff1'
-            },
-            xaxis: {
-                gridcolor: '#2d2d2d'
-            },
-            yaxis: {
-                gridcolor: '#2d2d2d'
-            },
-            margin: {
-                l: 50,
-                r: 50,
-                t: 30,
-                b: 50
-            }
-        };
+            // Update table
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+            measurements.forEach(m => {
+                const row = document.createElement('tr');
+                row.style.borderBottom = "1px solid #2d2d2d";
+                row.innerHTML = `
+                    <td style="padding: 1rem;">${m.timestamp}</td>
+                    <td style="padding: 1rem;">${m.distance}</td>
+                    <td style="padding: 1rem;">
+                        <span class="btn-primary" style="padding: 0.3rem 0.8rem; border-radius: 1rem; font-size: 0.9rem;">
+                            ${m.status}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
 
-        Plotly.newPlot('sensorPlot', data, layout);
+        async function fetchAndUpdate() {
+            const response = await fetch('/api/measurements');
+            const measurements = await response.json();
+            updateChartAndTable(measurements);
+        }
+
+        // Initial load
+        fetchAndUpdate();
+        // Update every 5 seconds
+        setInterval(fetchAndUpdate, 5000);
     </script>
 </body>
 </html>
