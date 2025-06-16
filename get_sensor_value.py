@@ -32,6 +32,7 @@ if __name__ == "__main__":
             while True:
                 distancia = medir_distancia()
                 file.write(f"{distancia}\n")  # Solo guarda el número
+                file.flush()  # Asegura que el valor se escriba en el disco inmediatamente
                 print(f"Registrado: {distancia} cm")  # Feedback en consola
                 time.sleep(1)  # Intervalo entre mediciones
 
