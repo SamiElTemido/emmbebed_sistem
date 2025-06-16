@@ -30,15 +30,15 @@ if __name__ == "__main__":
         setup()
         with open(ARCHIVO, "a") as file:
             while True:
-                if(distancia<500):
                     distancia = medir_distancia()
-                    file.write(f"{distancia}\n")  # Solo guarda el número
-                    file.flush()
-                    print(f"Registrado: {distancia} cm")  # Feedback en consola
-                else:
-                    print(f"Dato no registrado: {distancia} cm")  # Feedback en consola
+                    if distancia<500:
+                        file.write(f"{distancia}\n")  # Solo guarda el número
+                        file.flush()
+                        print(f"Registrado: {distancia} cm")  # Feedback en consola
+                    else:
+                        print(f"Dato no registrado: {distancia} cm")  # Feedback en consola
 
-                time.sleep(1)  # Intervalo entre mediciones
+                    time.sleep(1)  # Intervalo entre mediciones
 
     except KeyboardInterrupt:
         print("\nMedición detenida")
