@@ -6,7 +6,7 @@ import requests
 TRIG = 23
 ECHO = 24
 ARCHIVO = "distancias.txt"  # Archivo de salida
-SERVER_URL = "http://78.12.233.42:5000/api/submit"
+SERVER_URL = "http://78.12.7.198:5000/api/submit"
 
 def setup():
     GPIO.setmode(GPIO.BCM)

@@ -11,7 +11,7 @@ app = Flask(__name__)
 MAX_MEASUREMENTS = 100
 measurements_buffer = deque(maxlen=MAX_MEASUREMENTS)
 
-SERVER_URL = "http://78.12.233.42:5000/api/submit"
+SERVER_URL = "http://78.12.7.198:5000/api/submit"
 
 def read_sensor():
     # Replace with your real sensor reading code
