@@ -39,17 +39,19 @@ if __name__ == "__main__":
             while True:
                     distancia = medir_distancia()
                     if distancia<500:
+                        # Enviar a servidor
+                        try:
+                            requests.post(SERVER_URL, json={"distance": distancia}, timeout=2)
+                        except Exception as e:
+                            print("Error al enviar al servidor:", e)
+                            
                         file.write(f"{distancia}\n")  # Solo guarda el número
                         file.flush()
                         print(f"Registrado: {distancia} cm")  # Feedback en consola
                     else:
                         print(f"Dato no registrado: {distancia} cm")  # Feedback en consola
 
-                    # Enviar a servidor
-                    try:
-                        requests.post(SERVER_URL, json={"distance": distancia}, timeout=2)
-                    except Exception as e:
-                        print("Error al enviar al servidor:", e)
+                    
 
                     time.sleep(1)  # Intervalo entre mediciones
 
