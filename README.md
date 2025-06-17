@@ -31,7 +31,8 @@ source venv/bin/activate
 ### 3. Install Dependencies
 
 ```bash
-pip install flask requests
+pip install flask 
+pip install requests
 ```
 
 ### 4. Configure and Run the Flask Server (on AWS)
@@ -84,7 +85,8 @@ You will see a live chart and table of the latest sensor readings.
 
 - The server stores only the latest 100 measurements in memory. For persistent storage, consider integrating a database.
 - The dashboard updates automatically every 5 seconds.
-- No `.txt` file is used; all data is sent over the network.
+- No `.txt` file is used to transmit, all data is sent over the network, but data is saved at txt.
+- you must run first the server, then you run measurement code.
 
 ---
 
@@ -95,7 +97,3 @@ You will see a live chart and table of the latest sensor readings.
 - requests
 
 ---
-
-## License
-
-MIT License
