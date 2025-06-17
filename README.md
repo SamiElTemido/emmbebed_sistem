@@ -31,8 +31,8 @@ source venv/bin/activate
 ### 3. Install Dependencies
 
 ```bash
-pip install flask 
-pip install requests
+pip3 install flask 
+pip3 install requests
 ```
 
 ### 4. Configure and Run the Flask Server (on AWS)
