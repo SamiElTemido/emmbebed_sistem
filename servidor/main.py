@@ -1,8 +1,22 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 import json
 from datetime import datetime, timedelta
+from collections import deque
+import time
+import requests
 
 app = Flask(__name__)
+
+# Store the last 100 measurements in memory
+MAX_MEASUREMENTS = 100
+measurements_buffer = deque(maxlen=MAX_MEASUREMENTS)
+
+SERVER_URL = "http://<YOUR_AWS_SERVER_IP_OR_DOMAIN>:5000/api/submit"
+
+def read_sensor():
+    # Replace with your real sensor reading code
+    import random
+    return random.uniform(10, 800)
 
 @app.route("/")
 def main():
@@ -15,42 +29,8 @@ def about():
 
 @app.route("/monitor")
 def monitor():
-    # Read the last 50 measurements from the file
-    filepath = '../distancias.txt'
-    N = 50
-    try:
-        with open(filepath, 'r') as f:
-            lines = f.readlines()
-    except Exception:
-        lines = []
-
-    # Get the last N valid float values
-    distances = []
-    for line in lines[-N:]:
-        try:
-            distances.append(float(line.strip()))
-        except ValueError:
-            continue
-
-    # Generate timestamps (1 second apart, latest is now)
-    now = datetime.now()
-    measurements = []
-    for i, distance in enumerate(reversed(distances)):
-        timestamp = (now - timedelta(seconds=i)).strftime('%Y-%m-%d %H:%M:%S')
-        # Simple status logic
-        if distance > 700:
-            status = "Error"
-        elif distance < 20:
-            status = "Warning"
-        else:
-            status = "Normal"
-        measurements.append({
-            "timestamp": timestamp,
-            "distance": distance,
-            "status": status
-        })
-    measurements = list(reversed(measurements))  # Oldest first
-
+    # Use the in-memory buffer
+    measurements = list(measurements_buffer)
     return render_template(
         'monitor.html',
         measurements=measurements,
@@ -59,38 +39,38 @@ def monitor():
 
 @app.route("/api/measurements")
 def api_measurements():
-    filepath = '../distancias.txt'
-    N = 50
+    return jsonify(list(measurements_buffer))
+
+@app.route("/api/submit", methods=["POST"])
+def api_submit():
+    data = request.get_json()
     try:
-        with open(filepath, 'r') as f:
-            lines = f.readlines()
-    except Exception:
-        lines = []
+        distance = float(data["distance"])
+    except (KeyError, ValueError, TypeError):
+        return jsonify({"status": "error", "message": "Invalid data"}), 400
 
-    distances = []
-    for line in lines[-N:]:
-        try:
-            distances.append(float(line.strip()))
-        except ValueError:
-            continue
-
-    now = datetime.now()
-    measurements = []
-    for i, distance in enumerate(reversed(distances)):
-        timestamp = (now - timedelta(seconds=i)).strftime('%Y-%m-%d %H:%M:%S')
-        if distance > 700:
-            status = "Error"
-        elif distance < 20:
-            status = "Warning"
-        else:
-            status = "Normal"
-        measurements.append({
-            "timestamp": timestamp,
-            "distance": distance,
-            "status": status
-        })
-    measurements = list(reversed(measurements))
-    return jsonify(measurements)
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if distance > 700:
+        status = "Error"
+    elif distance < 20:
+        status = "Warning"
+    else:
+        status = "Normal"
+    measurement = {
+        "timestamp": timestamp,
+        "distance": distance,
+        "status": status
+    }
+    measurements_buffer.append(measurement)
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
+
+while True:
+    value = read_sensor()
+    try:
+        requests.post(SERVER_URL, json={"distance": value}, timeout=2)
+    except Exception as e:
+        print("Failed to send:", e)
+    time.sleep(1)

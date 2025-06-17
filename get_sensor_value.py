@@ -1,10 +1,12 @@
 import RPi.GPIO as GPIO
 import time
+import requests
 
 # Configuración
 TRIG = 23
 ECHO = 24
 ARCHIVO = "distancias.txt"  # Archivo de salida
+SERVER_URL = "http://<YOUR_AWS_SERVER_IP_OR_DOMAIN>:5000/api/submit"
 
 def setup():
     GPIO.setmode(GPIO.BCM)
@@ -25,6 +27,11 @@ def medir_distancia():
 
     return round((pulse_end - pulse_start) * 17150, 2)  # Distancia en cm con 2 decimales
 
+def read_sensor():
+    # Reemplazar con el código real de lectura del sensor
+    import random
+    return random.uniform(10, 800)
+
 if __name__ == "__main__":
     try:
         setup()
@@ -37,6 +44,12 @@ if __name__ == "__main__":
                         print(f"Registrado: {distancia} cm")  # Feedback en consola
                     else:
                         print(f"Dato no registrado: {distancia} cm")  # Feedback en consola
+
+                    # Enviar a servidor
+                    try:
+                        requests.post(SERVER_URL, json={"distance": distancia}, timeout=2)
+                    except Exception as e:
+                        print("Error al enviar al servidor:", e)
 
                     time.sleep(1)  # Intervalo entre mediciones
 
