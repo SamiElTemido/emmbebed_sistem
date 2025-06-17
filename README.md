@@ -1,68 +1,101 @@
-# Ultrasonic Distance Sensor Project
+# SensorHub - Remote Sensor Monitoring
 
-This project lets you measure distances with a Raspberry Pi and an HC-SR04 ultrasonic sensor. The measurements are saved to a file and can be viewed in real time on a web dashboard.
+This project allows you to remotely monitor sensor data (such as distance measurements) from a Raspberry Pi, sending the data to a Flask server hosted on AWS. The server provides a real-time dashboard with a chart and table of recent sensor readings.
 
-## Project Structure
-
-- `get_sensor_value.py`: Script that reads the sensor and saves distances to `distancias.txt`.
-- `distancias.txt`: File where all distance measurements are stored (in centimeters).
-- `servidor/`: Web server (Flask) to visualize the measurements.
-  - `main.py`: Flask app with routes for the dashboard and API.
-  - `static/`: CSS styles.
-  - `templates/`: HTML templates for the web pages.
+---
 
 ## How It Works
 
-1. The sensor script (`get_sensor_value.py`) runs on your Raspberry Pi.
-2. Every second, it measures the distance and appends the value to `distancias.txt`.
-3. The Flask server (`servidor/main.py`) reads the latest measurements and shows them on a web dashboard at `/monitor`.
-4. You can see a live chart and table of recent measurements in your browser.
+- **Raspberry Pi**: Reads sensor values (e.g., from an ultrasonic sensor) and sends them every second to the Flask server using HTTP POST requests.
+- **Flask Server (AWS)**: Receives sensor data, stores the latest 100 measurements in memory, and serves a web dashboard.
+- **Web Dashboard**: Shows a live-updating chart and table of recent sensor readings, refreshing automatically every 5 seconds.
 
-## Hardware Needed
+---
 
-- Raspberry Pi
-- HC-SR04 Ultrasonic Sensor
-- Jumper wires
-- GPIO pins used:
-  - TRIG: GPIO 23
-  - ECHO: GPIO 24
+## Setup Instructions
 
-## Setup
+### 1. Clone the Repository
 
-1. Install Python and Flask on your Raspberry Pi.
-2. Install the GPIO library:
-    ```bash
-    pip install RPi.GPIO
-    ```
-3. (Optional) Install Flask if not already installed:
-    ```bash
-    pip install flask
-    ```
-4. Clone this repository:
-    ```bash
-    git clone https://github.com/SamiElTemido/emmbebed_sistem.git
-    cd emmbebed_sistem
-    ```
+```bash
+git clone <your-repo-url>
+cd emmbebed_sistem/servidor
+```
 
-## Usage
+### 2. Create and Activate a Virtual Environment
 
-1. **Start the sensor script** (this will keep running and saving data):
-    ```bash
-    python get_sensor_value.py
-    ```
-2. **Start the web server** in another terminal:
-    ```bash
-    cd servidor
-    flask --app main run
-    ```
-3. **Open your browser** and go to [http://localhost:5000/monitor](http://localhost:5000/monitor) to see the dashboard.
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+
+```bash
+pip install flask requests
+```
+
+### 4. Configure and Run the Flask Server (on AWS)
+
+Edit `main.py` if needed, then start the server:
+
+```bash
+python main.py
+```
+
+The server will listen on port 5000 by default.
+
+### 5. Configure the Raspberry Pi Sensor Script
+
+On your Raspberry Pi, use the following script (replace `<YOUR_AWS_SERVER_IP_OR_DOMAIN>` with your AWS server's public IP or DNS):
+
+```python
+import time
+import requests
+
+SERVER_URL = "http://<YOUR_AWS_SERVER_IP_OR_DOMAIN>:5000/api/submit"
+
+def read_sensor():
+    # Replace with your real sensor reading code
+    import random
+    return random.uniform(10, 800)
+
+while True:
+    value = read_sensor()
+    try:
+        requests.post(SERVER_URL, json={"distance": value}, timeout=2)
+    except Exception as e:
+        print("Failed to send:", e)
+    time.sleep(1)
+```
+
+### 6. Access the Dashboard
+
+Open your browser and go to:
+
+```
+http://<YOUR_AWS_SERVER_IP_OR_DOMAIN>:5000/monitor
+```
+
+You will see a live chart and table of the latest sensor readings.
+
+---
 
 ## Notes
 
-- Measurements are in centimeters, with 3 decimal places.
-- The dashboard updates automatically every 2 seconds.
-- Only the latest 50 measurements are shown on the dashboard.
-- To stop the sensor script, press `Ctrl+C`.
+- The server stores only the latest 100 measurements in memory. For persistent storage, consider integrating a database.
+- The dashboard updates automatically every 5 seconds.
+- No `.txt` file is used; all data is sent over the network.
 
 ---
-If you have any issues, check your wiring and make sure the sensor is connected to the correct GPIO
+
+## Requirements
+
+- Python 3.x
+- Flask
+- requests
+
+---
+
+## License
+
+MIT License
