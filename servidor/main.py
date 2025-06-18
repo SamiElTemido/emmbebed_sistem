@@ -41,6 +41,10 @@ def monitor():
 def api_measurements():
     return jsonify(list(measurements_buffer))
 
+@app.route("/hola_mundo")
+def hola_mundo():
+    return "¡Hola, mundo!"
+
 @app.route("/api/submit", methods=["POST"])
 def api_submit():
     data = request.get_json()
