@@ -85,7 +85,7 @@ You will see a live chart and table of the latest sensor readings.
 
 - The server stores only the latest 100 measurements in memory. For persistent storage, consider integrating a database.
 - The dashboard updates automatically every 5 seconds.
-- No `.txt` file is used to transmit, all data is sent over the network, but data is saved at txt.
+- data is saved to a `.txt` file
 - you must run first the server, then you run measurement code.
 
 ---
